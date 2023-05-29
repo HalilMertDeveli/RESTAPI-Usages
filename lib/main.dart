@@ -20,7 +20,7 @@ class Body extends StatefulWidget {
 class _BodyState extends State<Body> {
   String? incomingResponseFromEthernet;
 
-  UserModel ? userModel;
+  User? userModel;
 
   Future<void> httpMethod() async {
     final String ethernetAddress = "https://reqres.in/api/users?page=2";
@@ -29,8 +29,8 @@ class _BodyState extends State<Body> {
 
     setState(() {
       if (response.statusCode < 300) {
-        Map decodedResponse = jsonDecode(response.body);
-        userModel=UserModel.fromJson(decodedResponse);
+        Map<String, dynamic> decodedResponse = jsonDecode(response.body);
+        userModel = User.fromJson(decodedResponse);
 
         incomingResponseFromEthernet = decodedResponse['data'][0]['first_name'];
       } else {
@@ -41,22 +41,36 @@ class _BodyState extends State<Body> {
 
   @override
   Widget build(BuildContext context) {
-    return ListView(
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Text(
-          "Response:",
-          style: TextStyle(fontSize: 30),
+        Expanded(
+          child: ListView.builder(
+            itemCount: 6 ,
+            itemBuilder: (context, index) {
+              if (userModel?.data != null) {
+                return ListTile(
+                  title: Text(userModel!.data![index].firstName.toString()),
+                  subtitle: Text(userModel!.data![index].lastName.toString().toUpperCase()),
+                  leading: Image.network(userModel!.data![index].avatar.toString()),
+                );
+              }
+              else{
+                return CircularProgressIndicator();
+              }
+            }
+          
+           
+          ),
         ),
-        Text(
-          incomingResponseFromEthernet.toString(),
-        ),
-        Text( userModel?.data != null ? userModel!.data!.email! : "Total is null"),
         MaterialButton(
-          onPressed: () {
-            httpMethod();
+          onPressed: (){
+            setState(() {
+                httpMethod();
+            });
           },
-          child: Icon(Icons.get_app_sharp),
-        ),
+          child: Icon(Icons.gite_sharp),
+          )
       ],
     );
   }
